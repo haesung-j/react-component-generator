@@ -6,6 +6,8 @@ interface UseComponentGeneratorReturn {
   components: GeneratedComponent[];
   isLoading: boolean;
   error: string | null;
+  currentIndex: number;
+  setCurrentIndex: (index: number) => void;
   generate: (prompt: string, apiKey: string | undefined, provider: Provider) => Promise<void>;
   removeComponent: (id: string) => void;
   clearAll: () => void;
@@ -24,6 +26,7 @@ export function useComponentGenerator(): UseComponentGeneratorReturn {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const generate = useCallback(async (prompt: string, apiKey: string | undefined, provider: Provider) => {
     setIsLoading(true);
@@ -50,6 +53,7 @@ export function useComponentGenerator(): UseComponentGeneratorReturn {
       };
 
       setComponents((prev) => [newComponent, ...prev]);
+      setCurrentIndex(0);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setError(message);
@@ -59,12 +63,24 @@ export function useComponentGenerator(): UseComponentGeneratorReturn {
   }, []);
 
   const removeComponent = useCallback((id: string) => {
+    const removedIndex = components.findIndex((c) => c.id === id);
     setComponents((prev) => prev.filter((c) => c.id !== id));
-  }, []);
+    if (removedIndex !== -1) {
+      const newLength = components.length - 1;
+      if (newLength === 0) {
+        setCurrentIndex(0);
+      } else if (removedIndex < currentIndex) {
+        setCurrentIndex(currentIndex - 1);
+      } else if (removedIndex === currentIndex && currentIndex >= newLength) {
+        setCurrentIndex(newLength - 1);
+      }
+    }
+  }, [components, currentIndex]);
 
   const clearAll = useCallback(() => {
     setComponents([]);
+    setCurrentIndex(0);
   }, []);
 
-  return { components, isLoading, error, generate, removeComponent, clearAll };
+  return { components, isLoading, error, currentIndex, setCurrentIndex, generate, removeComponent, clearAll };
 }
