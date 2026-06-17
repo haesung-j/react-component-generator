@@ -19,7 +19,8 @@ function App() {
     anthropic: false,
     google: false,
   });
-  const { components, isLoading, error, generate, removeComponent, clearAll } =
+  const [showHistory, setShowHistory] = useState(false);
+  const { components, isLoading, error, currentIndex, setCurrentIndex, generate, removeComponent, clearAll } =
     useComponentGenerator();
 
   useEffect(() => {
@@ -30,6 +31,7 @@ function App() {
   }, []);
 
   const hasEnvKey = envKeys[provider];
+  const currentComponent = components[currentIndex];
 
   const handleGenerate = (prompt: string) => {
     if (!apiKey.trim() && !hasEnvKey) {
@@ -42,6 +44,11 @@ function App() {
   const handleProviderChange = (newProvider: Provider) => {
     setProvider(newProvider);
     setApiKey('');
+  };
+
+  const handleHistorySelect = (index: number) => {
+    setCurrentIndex(index);
+    setShowHistory(false);
   };
 
   const activeProvider = PROVIDER_CONFIG[provider].label;
@@ -129,18 +136,6 @@ function App() {
       )}
 
       <section className="results-section">
-        {components.length > 0 && (
-          <div className="results-header">
-            <div>
-              <span className="panel-kicker">Generated</span>
-              <h2>생성된 컴포넌트</h2>
-            </div>
-            <button className="btn-clear" onClick={clearAll}>
-              전체 삭제
-            </button>
-          </div>
-        )}
-
         {components.length === 0 && !isLoading && (
           <div className="empty-state">
             <div className="empty-preview" aria-hidden="true">
@@ -168,18 +163,93 @@ function App() {
           </div>
         )}
 
-        <div className="results-grid">
-          {components.map((component) => (
-            <ComponentCard
-              key={component.id}
-              component={component}
-              onRemove={removeComponent}
-              onRegenerate={handleGenerate}
-              isLoading={isLoading}
-            />
-          ))}
-        </div>
+        {components.length > 0 && (
+          <>
+            <div className="history-nav">
+              <div className="nav-arrows">
+                <button
+                  className="btn-nav"
+                  onClick={() => setCurrentIndex(currentIndex - 1)}
+                  disabled={currentIndex <= 0}
+                  title="이전 컴포넌트"
+                >
+                  ← 이전
+                </button>
+                <span className="nav-counter">{currentIndex + 1} / {components.length}</span>
+                <button
+                  className="btn-nav"
+                  onClick={() => setCurrentIndex(currentIndex + 1)}
+                  disabled={currentIndex >= components.length - 1}
+                  title="다음 컴포넌트"
+                >
+                  다음 →
+                </button>
+              </div>
+              <button
+                className="btn-history"
+                onClick={() => setShowHistory(true)}
+              >
+                히스토리
+              </button>
+            </div>
+
+            {currentComponent && (
+              <ComponentCard
+                key={currentComponent.id}
+                component={currentComponent}
+                onRemove={removeComponent}
+                onRegenerate={handleGenerate}
+                isLoading={isLoading}
+              />
+            )}
+          </>
+        )}
       </section>
+
+      {showHistory && (
+        <>
+          <div className="history-overlay" onClick={() => setShowHistory(false)} />
+          <div className="history-panel" role="dialog" aria-label="히스토리">
+            <div className="history-panel-header">
+              <h3>히스토리</h3>
+              <div className="history-panel-actions">
+                <button className="btn-clear" onClick={() => { clearAll(); setShowHistory(false); }}>
+                  전체 삭제
+                </button>
+                <button className="btn-close-panel" onClick={() => setShowHistory(false)}>
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="history-list">
+              {components.map((component, index) => (
+                <button
+                  key={component.id}
+                  className={`history-item${index === currentIndex ? ' history-item--active' : ''}`}
+                  onClick={() => handleHistorySelect(index)}
+                >
+                  <span className="history-item-index">{index + 1}</span>
+                  <span className="history-item-info">
+                    <span className="history-item-prompt">
+                      {component.prompt.length > 50
+                        ? component.prompt.slice(0, 50) + '…'
+                        : component.prompt}
+                    </span>
+                    <span className="history-item-time">
+                      {component.createdAt.toLocaleString('ko-KR', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
