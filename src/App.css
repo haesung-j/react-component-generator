@@ -665,6 +665,43 @@ body {
   box-shadow: inset 0 0 20px rgba(167, 139, 250, 0.08);
 }
 
+.viewport-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-viewport {
+  height: 28px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 650;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.btn-viewport:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-viewport--active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.preview-viewport {
+  width: 100%;
+  transition: max-width 0.25s ease;
+}
+
 .preview-error {
   margin-top: 14px;
   padding: 12px 14px;
