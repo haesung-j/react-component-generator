@@ -1,7 +1,7 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -10,6 +10,17 @@ export default defineConfig({
         target: 'http://localhost:3002',
         changeOrigin: true,
       },
+    },
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**', 'server/**'],
+      exclude: ['src/main.tsx', 'src/assets/**'],
     },
   },
 })
