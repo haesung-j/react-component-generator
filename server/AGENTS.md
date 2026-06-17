@@ -26,6 +26,9 @@ Bun HTTP server on port 3002. Sole responsibility: receive prompt + provider fro
 
 ## Local Golden Rules
 
+**Sensitive Files:**
+- `.env.local` — contains `ANTHROPIC_API_KEY` and `GOOGLE_API_KEY`. Never log or expose these values.
+
 **Do:**
 - Return `{ error: string }` JSON with an appropriate HTTP status for all error cases.
 - Map `429`/`503` API errors to the same status codes in the response.
@@ -33,5 +36,6 @@ Bun HTTP server on port 3002. Sole responsibility: receive prompt + provider fro
 
 **Don't:**
 - Don't log or return raw API keys in error messages.
+- Don't expose API key presence/values through any endpoint — only return boolean `hasKey` flags if needed.
 - Don't add persistent state (database, in-memory cache) — the server is stateless by design.
 - Don't change the port from `3002` without updating `vite.config.ts` proxy target simultaneously.

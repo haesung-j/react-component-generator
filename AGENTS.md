@@ -25,9 +25,13 @@ Tech stack: React 19, TypeScript, Vite, Bun, react-live, Anthropic Claude API, G
 ## Golden Rules
 
 **Immutable:**
-- Never commit API keys. Keys go in `.env` only.
+- Never commit API keys. Keys go in `.env.local` only — this file is protected by hooks and cannot be read by Claude.
 - Never add a `server/` dependency outside the root `package.json` — there is no separate server package.json.
 - The `render(<ComponentName />)` call at the end of generated code is mandatory for `react-live`'s `noInline` mode; `ensureRenderCall()` handles the fallback — do not remove it.
+
+**Sensitive Files (Protected by Hook):**
+- `.env.local` — API keys live here. Claude cannot read/write this file. You must create and manage it manually.
+- `server/index.ts` — Do not expose API keys in error messages, logs, or responses.
 
 **Do:**
 - Use `Bun.serve()` for all server-side HTTP handling.
