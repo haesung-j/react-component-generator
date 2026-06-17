@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
@@ -15,7 +15,7 @@ const EXAMPLES = [
 ];
 
 export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
-  const [prompt, setPrompt] = useState('');
+  const [prompt, setPrompt] = useLocalStorage('rcg_prompt', '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
